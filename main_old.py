@@ -1,7 +1,6 @@
 import logging
 import sys
 from collections import defaultdict
-from multiprocessing import Process
 
 from src.Core.Galaxy import Galaxy
 
@@ -22,14 +21,25 @@ ESCAPE = 0  # 1 启用逃跑任务 0 关闭逃逸任务
 # Robo zc530345283
 
 SHOWID = 0  # 1 显示星球ID 0 不显示星球ID 正常使用脚本时请设置为0
+# 1000725 [129, 47, 3, 0]
+# 1000738 [69, 15, 3, 0]
+# 1000936 [87, 3, 3, 0]
+# 1000956 [6, 58, 4, 0]
+# 1001227 [15, 9, 5, 0]
+# 1001229 [36, 58, 4, 0]
+# 1001847 [146, 24, 5, 0]
+# 1003398 [144, 60, 1, 0]
+# 2005506 [103, 59, 2, 0]
+# 3228943 [15, 9, 5, 1]
+
 
 DETECT_INTERVAL = 30 # 探测间隔
 ESCAPE_ADVANCE = 60  # 逃跑提前量 建议逃跑提前量大于等于两倍探测间隔
 ALLOW_RECALL = 1  # 1 允许撤回 0 不允许撤回
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
-
+                    format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s',  # 日志格式
+                    )
 fleet = {
     20: defaultdict(int, {
         'ds': 2,
@@ -58,50 +68,32 @@ fleet = {
     99: defaultdict(int, {'satellite': 5})
 }
 
+attackTargetList = []
+exploreTargetList = []
 
-def run_for_user(account, password, server):
-    """
-    为单个用户运行脚本。
-    """
-    attackTargetList = []
-    exploreTargetList = []
 
-    def target2lst(TARGET, Lst):
-        for i in TARGET:
-            Lst.append(dict(zip(['galaxy', 'system', 'planet'], i)))
+def target2lst(TARGET, Lst):
+    for i in TARGET:
+        Lst.append(dict(zip(['galaxy', 'system', 'planet'], i)))
 
-    task = defaultdict(int)
-    task['attack'] = ATTACK
-    task['explore'] = EXPLORE
-    task['escape'] = ESCAPE
 
+task = defaultdict(int)
+task['attack'] = ATTACK
+task['explore'] = EXPLORE
+task['escape'] = ESCAPE
+
+if __name__ == '__main__':
     target2lst(ATTACKTARGET, attackTargetList)
     target2lst(EXPLORETARGET, exploreTargetList)
-
     G = Galaxy()
-    G.getAccount(account, password, server)
+    G.getAccount(ACCOUNT, PASSWORD, SERVER)
     if SHOWID:
         G.showPlanetId()
         sys.exit(0)
 
     G.getInfo(escapeInAdvance=ESCAPE_ADVANCE, detectInterval=DETECT_INTERVAL, allowRecall=ALLOW_RECALL)
     G.getTasks(attackTargetList, (ATTACKLEVEL, ATTACKTIMES, ATTACKFROM), exploreTargetList,
-               (EXPLORELEVEL, EXPLORETIMES, EXPLOREFROM), task, fleet)
+               (EXPLORELEVEL, EXPLORETIMES, EXPLOREFROM), task,
+               fleet)
     G.runTask()
-
-if __name__ == '__main__':
-    # 用户账户列表，每个元素是一个(account, password, server)元组
-    user_accounts = [
-        ("Zeus", "zc530345283", "g1"),
-        # 添加更多用户账号...
-    ]
-
-    processes = []
-
-    for account, password, server in user_accounts:
-        p = Process(target=run_for_user, args=(account, password, server))
-        processes.append(p)
-        p.start()
-
-    for p in processes:
-        p.join()
+    
