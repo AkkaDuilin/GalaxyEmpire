@@ -187,6 +187,7 @@ class Galaxy(GalaxyCore):
             raise Exception('Error while getAttackFleet')
         return __args
 
+    # TODO attack async DDL 2.7
     def Attack(self, target, level):
         url = 'game.php?page=fleet3'
         additional_args = {'staytime': 1}
@@ -452,6 +453,7 @@ class Galaxy(GalaxyCore):
             logging.info(f"{self.loggingPrefix}attacking! waiting for {sleepTime} seconds")  # TODO identify success or not
             await asyncio.sleep(sleepTime)
 
+    # TODO explore async
     async def addExploreTask(self):
         """Generates a new explore task"""
         task = {}
@@ -462,6 +464,7 @@ class Galaxy(GalaxyCore):
             task['type'] = 1
             task['times'] = self.exploreTimes
             task['from'] = self.exploreFrom
+            logging.info(task)
             try:
                 sleepTime = next(self.taskCore(task))
             except Exception as e:
@@ -493,6 +496,7 @@ class Galaxy(GalaxyCore):
 
     def runTask(self):
         self.startup()
+        # self.gatherTask()
         asyncio.run(self.gatherTask())
 
     # extra function area

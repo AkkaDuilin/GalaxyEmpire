@@ -146,6 +146,7 @@ class GalaxyCore:
     def startup(self):
         self.login()
 
+    # TODO 
     def _post(self, url: str, args={}) -> dict:
         """
         Everything work with network start in this method
@@ -209,7 +210,9 @@ class GalaxyCore:
     def getSession(self):
         """return session as dict"""
         return {"sess_id": self.ssid, "ppy_id": self.ppy_id}
-
+ 
+ 
+    # TODO login async DDL 2.7
     def login(self):
         """
         Login and update session
